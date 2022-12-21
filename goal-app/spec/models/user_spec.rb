@@ -29,4 +29,35 @@ RSpec.describe User, type: :model do
     it {should validate_uniqueness_of(:username)}
   end
 
+  describe "#is_password?" do
+    it "should verify password is correct" do
+      expect(user.is_password?('password')).to be false
+    end
+  end
+
+  describe "#reset_session_token!" do
+    it "sets a new session_token for the user" do
+      user.valid?
+      old_session_token = user.session_token
+      user.reset_session_token!
+      expect(user.session_token).not_to eq(old_session_token)
+    end
+
+    it "returns a new session_token" do 
+      expect(user.reset_session_token!).to eq(user.session_token)
+    end
+  end
+
+  describe "::find_by_credentials" do 
+    before { user.save! }
+    
+    it "returns user given good credentials" do
+      expect(User.find_by_credentials(user.username, "password")).to eq(user) 
+    end
+  
+    it "returns nil given bad credentials" do
+      expect(User.find_by_credentials(user.username, "notpassword")).to be_nil 
+    end
+  
+  end
 end
